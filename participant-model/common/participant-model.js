@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from 'meteor/aldeed:simple-schema';
 /* eslint-enable import/no-unresolved */
 
 export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, ConversationsCollection }) => {
@@ -89,7 +89,6 @@ export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, Convers
     ParticipantsCollection.attachSchema(new SimpleSchema({
         userId: {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
             autoValue() {
                 if (this.isInsert && !this.isSet) {
                     return this.userId;
@@ -101,7 +100,6 @@ export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, Convers
         },
         conversationId: {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
             denyUpdate: true,
             index: 1,
         },
@@ -140,7 +138,6 @@ export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, Convers
         },
         'observing.$': {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
         },
         typing: {
             type: Array,
@@ -148,7 +145,6 @@ export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, Convers
         },
         'typing.$': {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
         },
     }));
 

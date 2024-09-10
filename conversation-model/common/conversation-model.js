@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from 'meteor/aldeed:simple-schema';
 /* eslint-enable import/no-unresolved */
 
 export default ({ Meteor, BaseModel, User, ServerTime, ConversationsCollection,
@@ -174,7 +174,6 @@ export default ({ Meteor, BaseModel, User, ServerTime, ConversationsCollection,
         },
         '_participants.$': {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
         },
     }));
 

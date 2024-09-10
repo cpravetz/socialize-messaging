@@ -1,5 +1,5 @@
 /* eslint-disable import/no-unresolved */
-import SimpleSchema from 'simpl-schema';
+import SimpleSchema from 'meteor/aldeed:simple-schema';
 /* eslint-enable import/no-unresolved */
 
 export default ({ Meteor, LinkableModel, LinkParent, ServerTime, MessagesCollection }) => {
@@ -80,7 +80,6 @@ export default ({ Meteor, LinkableModel, LinkParent, ServerTime, MessagesCollect
     MessagesCollection.attachSchema(new SimpleSchema({
         userId: {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
             autoValue() {
                 if (this.isInsert && (!this.isFromTrustedCode || !this.isSet)) {
                     return this.userId;
@@ -92,7 +91,6 @@ export default ({ Meteor, LinkableModel, LinkParent, ServerTime, MessagesCollect
         },
         conversationId: {
             type: String,
-            regEx: SimpleSchema.RegEx.Id,
             index: 1,
             denyUpdate: true,
         },
