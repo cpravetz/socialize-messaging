@@ -2,8 +2,8 @@ import { ParticipantsCollection, ConversationsCollection, MessagesCollection } f
 
 MessagesCollection.allow({
     // If the user is a participant, allow them to insert (send) a message
-    insert(userId, message) {
-        if (userId && ParticipantsCollection.findOne({ userId, conversationId: message.conversationId })) {
+    async insert(userId, message) {
+        if (userId && await ParticipantsCollection.findOneAsync({ userId, conversationId: message.conversationId })) {
             return true;
         }
         return false;
@@ -15,14 +15,14 @@ MessagesCollection.allow({
 });
 
 // After a message is sent we need to update the ParticipantsCollection and ConversationsCollection
-MessagesCollection.after.insert(function afterInsert(userId, document) {
+MessagesCollection.after.insert(function afterinsert(userId, document) {
     /* Only update participants who aren't observing the conversation.
      * If we update users who are reading the conversation it will show the
      * conversation as unread to the user. This would be bad UX design
      *
      * Tracking observations is done through the "viewingConversation" subscription
     */
-    ParticipantsCollection.update({
+    ParticipantsCollection.updateAsync({
         userId: { $ne: userId },
         conversationId: document.conversationId,
         observing: {
@@ -36,9 +36,9 @@ MessagesCollection.after.insert(function afterInsert(userId, document) {
     });
 
     // update the date on the conversation for sorting the conversation from newest to oldest
-    ConversationsCollection.update(document.conversationId, { $inc: { messageCount: 1 } });
+    ConversationsCollection.updateAsync(document.conversationId, { $inc: { messageCount: 1 } });
 });
 
 MessagesCollection.after.remove(function afterRemove(userId, document) {
-    ConversationsCollection.update(document.conversationId, { $inc: { messageCount: -1 } });
+    ConversationsCollection.updateAsync(document.conversationId, { $inc: { messageCount: -1 } });
 });

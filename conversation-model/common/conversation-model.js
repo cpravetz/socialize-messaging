@@ -44,9 +44,9 @@ export default ({ Meteor, BaseModel, User, ServerTime, ConversationsCollection,
         * Check if the conversation has not been read by a the current user
         * @returns {Boolean} Whether the conversation is unread
         */
-        isUnread() {
+        async isUnread() {
             const userId = Meteor.userId();
-            return !!ParticipantsCollection.findOne({ conversationId: this._id, userId, read: false });
+            return !!(await ParticipantsCollection.findOneAsync({ conversationId: this._id, userId, read: false }));
         }
 
         /**
@@ -71,8 +71,8 @@ export default ({ Meteor, BaseModel, User, ServerTime, ConversationsCollection,
         * Retrieve the last message in the conversation
         * @returns {Message} An instance of Message which was the last sent message for the conversation
         */
-        lastMessage() {
-            return MessagesCollection.findOne({ conversationId: this._id }, { sort: { createdAt: -1 }, limit: 1 });
+        async lastMessage() {
+            return await MessagesCollection.findOneAsync({ conversationId: this._id }, { sort: { createdAt: -1 }, limit: 1 });
         }
 
         /**
@@ -116,25 +116,25 @@ export default ({ Meteor, BaseModel, User, ServerTime, ConversationsCollection,
         * This is set on the particpant object for the user
         * @param {Boolean} state The read state to set
         */
-        updateReadState(state) {
-            const participant = ParticipantsCollection.findOne({ conversationId: this._id, userId: Meteor.userId() });
-            participant.update({ $set: { read: state } });
+        async updateReadState(state) {
+            const participant = await ParticipantsCollection.findOneAsync({ conversationId: this._id, userId: Meteor.userId() });
+            participant.updateAsync({ $set: { read: state } });
         }
 
         /**
         * Remove a participant from a conversation
         * @param {User} user The user to remove, defaults to the currently logged in user
         */
-        removeParticipant(user) {
+        async removeParticipant(user) {
             const userId = (user && user._id) || Meteor.userId();
             const query = { conversationId: this._id, userId };
             const modifier = { $set: { deleted: true, read: true } };
 
             if (Meteor.isClient) {
-                const participant = ParticipantsCollection.findOne(query);
-                participant && participant.update(modifier);
+                const participant = await ParticipantsCollection.findOneAsync(query);
+                participant && participant.updateAsync(modifier);
             } else {
-                ParticipantsCollection.update(query, modifier);
+                ParticipantsCollection.updateAsync(query, modifier);
             }
         }
     }

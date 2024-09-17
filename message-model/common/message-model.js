@@ -5,13 +5,13 @@ import SimpleSchema from 'meteor/aldeed:simple-schema';
 export default ({ Meteor, LinkableModel, LinkParent, ServerTime, MessagesCollection }) => {
     if (MessagesCollection.configureRedisOplog) {
         MessagesCollection.configureRedisOplog({
-            mutation(options, { selector, doc }) {
+            async mutation(options, { selector, doc }) {
                 const namespaces = [MessagesCollection._name];
 
                 let conversationId = (selector && selector.conversationId) || (doc && doc.conversationId);
 
                 if (!conversationId && selector._id) {
-                    const participant = MessagesCollection.findOne({ _id: selector._id }, { fields: { conversationId: 1 } });
+                    const participant = await MessagesCollection.findOneAsync({ _id: selector._id }, { fields: { conversationId: 1 } });
                     conversationId = participant && participant.conversationId;
                 }
 
@@ -42,8 +42,8 @@ export default ({ Meteor, LinkableModel, LinkParent, ServerTime, MessagesCollect
         * Get the user that wrote the message
         * @returns {User} The user who wrote the message
         */
-        user() {
-            return Meteor.users.findOne({ _id: this.userId });
+        async user() {
+            return await Meteor.users.findOneAsync({ _id: this.userId });
         }
 
         /**

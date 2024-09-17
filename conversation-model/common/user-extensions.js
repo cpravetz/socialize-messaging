@@ -31,36 +31,36 @@ export default ({ Meteor, User, ParticipantsCollection, ConversationsCollection 
         * Get the numer of unread conversations for the user
         * @return {Number} The number or unread conversations
         */
-        numUnreadConversations() {
+        async numUnreadConversations() {
             const cursor = this.unreadConversations({ fields: { _id: 1 } });
-            return Meteor.isClient ? cursor.fetch().length : cursor.count();
+            return Meteor.isClient ? cursor.fetch().length : await cursor.countAsync();
         },
         /**
         * Get the most recently updated conversation that the user is participating in
         * @return {Conversation} The newest conversation
         */
-        newestConversation() {
-            const participant = ParticipantsCollection.findOne(
+        async newestConversation() {
+            const participant = await ParticipantsCollection.findOneAsync(
                 { userId: this._id },
                 { fields: { conversationId: 1 }, sort: { updatedAt: -1 } },
             );
-            return participant && ConversationsCollection.findOne({ _id: participant.conversationId });
+            return participant && await ConversationsCollection.findOneAsync({ _id: participant.conversationId });
         },
         /**
         *  Check if the user is participating in this conversation
         *  @param      {String}  conversationId   Conversation id to check if the user is participating in
         *  @returns    {Boolean} Whether the user is participating in the conversation or not
         */
-        isParticipatingIn(conversationId) {
-            return !!ParticipantsCollection.findOne({ userId: this._id, conversationId, deleted: { $exists: false } });
+        async isParticipatingIn(conversationId) {
+            return !!( await ParticipantsCollection.findOneAsync({ userId: this._id, conversationId, deleted: { $exists: false } }));
         },
         /**
         * Check if the user is observing a particular conversation
         * @param  {String}  conversationId An id of conversation to check if the user is observing
         * @return {Boolean}        Whether the user is observing or not
         */
-        isObserving(conversationId) {
-            return !!ParticipantsCollection.findOne({ userId: this._id, conversationId, 'observing.0': { $exists: true } });
+        async isObserving(conversationId) {
+            return !!(await ParticipantsCollection.findOneAsync({ userId: this._id, conversationId, 'observing.0': { $exists: true } }));
         },
         /**
         *  Find existing conversation between this user a number of other users

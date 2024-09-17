@@ -34,16 +34,16 @@ ParticipantsCollection.allow({
     },
 });
 
-ParticipantsCollection.after.insert(function afterInsert(userId, document) {
-    ConversationsCollection.update(document.conversationId, { $addToSet: { _participants: document.userId } });
+ParticipantsCollection.after.insert(function afterinsert(userId, document) {
+    ConversationsCollection.updateAsync(document.conversationId, { $addToSet: { _participants: document.userId } });
 });
 
 ParticipantsCollection.after.update(function afterUpdate(userId, document) {
     if (document.deleted) {
         if (this.transform().conversation().isReadOnly()) {
-            ConversationsCollection.remove(document.conversationId);
+            ConversationsCollection.removeAsync(document.conversationId);
         } else {
-            ConversationsCollection.update(document.conversationId, { $pull: { _participants: document.userId } });
+            ConversationsCollection.updateAsync(document.conversationId, { $pull: { _participants: document.userId } });
         }
     }
 });
@@ -51,8 +51,8 @@ ParticipantsCollection.after.update(function afterUpdate(userId, document) {
 
 UserPresence.onCleanup(function onCleanup(sessionIds) {
     if (sessionIds) {
-        ParticipantsCollection.update({ observing: { $in: sessionIds } }, { $pullAll: { observing: sessionIds } }, { multi: true });
+        ParticipantsCollection.updateAsync({ observing: { $in: sessionIds } }, { $pullAll: { observing: sessionIds } }, { multi: true });
     } else {
-        ParticipantsCollection.update({}, { $set: { observing: [] } }, { multi: true });
+        ParticipantsCollection.updateAsync({}, { $set: { observing: [] } }, { multi: true });
     }
 });

@@ -79,7 +79,7 @@ Once we have the appropriate packages imported, the rest of the code will run in
 ```javascript
 let convo = new Conversation.save();
 
-let otherUser = Meteor.users.findOne();
+let otherUser = Meteor.users.findOneAsync();
 
 convo.addParticipant(otherUser);
 

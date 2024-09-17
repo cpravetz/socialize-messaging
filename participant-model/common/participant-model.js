@@ -5,14 +5,14 @@ import SimpleSchema from 'meteor/aldeed:simple-schema';
 export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, ConversationsCollection }) => {
     if (ParticipantsCollection.configureRedisOplog) {
         ParticipantsCollection.configureRedisOplog({
-            mutation(options, { selector, doc }) {
+            async mutation(options, { selector, doc }) {
                 const namespaces = [ParticipantsCollection._name];
 
                 let conversationId = (selector && selector.conversationId) || (doc && doc.conversationId);
                 let userId = (selector && selector.userId) || (doc && doc.userId);
 
                 if (!conversationId && !userId && selector._id) {
-                    const participant = ParticipantsCollection.findOne({ _id: selector._id }, { fields: { conversationId: 1 } });
+                    const participant = await ParticipantsCollection.findOneAsync({ _id: selector._id }, { fields: { conversationId: 1 } });
 
                     if (participant) {
                         conversationId = participant.conversationId;
@@ -54,16 +54,16 @@ export default ({ Meteor, BaseModel, ServerTime, ParticipantsCollection, Convers
         * Get the user that is the participant
         * @returns {User} The user who is the participant in the conversation
         */
-        user() {
-            return Meteor.users.findOne({ _id: this.userId });
+        async user() {
+            return await Meteor.users.findOneAsync({ _id: this.userId });
         }
 
         /**
         * Get the conversation that the participant is involved in
         * @returns {Conversation} The conversation the user is participating in
         */
-        conversation() {
-            return ConversationsCollection.findOne({ _id: this.conversationId });
+        async conversation() {
+            return await ConversationsCollection.findOneAsync({ _id: this.conversationId });
         }
 
         /**

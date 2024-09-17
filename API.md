@@ -7,7 +7,7 @@ import { Conversation } from 'meteor/socialize:messaging';
 
 let conversation = new Conversation().save();
 
-conversation.addParticipant( Meteor.users.findOne({username:"JohnDoe"}) );
+conversation.addParticipant( Meteor.users.findOneAsync({username:"JohnDoe"}) );
 
 conversation.sendMessage("Hello World!");
 ```
@@ -23,7 +23,7 @@ To gain access to the methods of a conversation you must first have an instance 
 ```javascript
 import { ConversationsCollection } from 'meteor/socialize:messaging';
 
-let conversation = ConversationsCollection.findOne(); // Single Conversation Instance
+let conversation = ConversationsCollection.findOneAsync(); // Single Conversation Instance
 
 let conversations = ConversationsCollection.find(); // Cursor Returning Conversation Instances
 ```
@@ -93,7 +93,7 @@ conversation.addParticipants(users)
 **addParticipant(participant)** - Add a single participant to the conversation. `participant` parameter takes a single user instance.
 
 ```javascript
-let user = Meteor.users.findOne({username:"copleykj"});
+let user = Meteor.users.findOneAsync({username:"copleykj"});
 
 conversation.addParticipant(user);
 ```
@@ -118,9 +118,9 @@ A participant links a user with a conversation and holds information about the u
 Participants are created by calling the `addParticipant` or `addParticipants` method of a conversation and passing a user instance or an array of user instances for `addParticipants`
 
 ```javascript
-let conversation = ConversationsCollection.findOne();
+let conversation = ConversationsCollection.findOneAsync();
 
-let user = Meteor.users.findOne({username:"JohnDoe"});
+let user = Meteor.users.findOneAsync({username:"JohnDoe"});
 
 conversation.addParticipant(user);
 
@@ -136,9 +136,9 @@ To gain access to the methods of a participant you must first have an instance o
 ```javascript
 import { ParticipantsCollection, ConversationsCollection } from 'meteor/socialize:messaging';
 
-let participant = ParticipantsCollection.findOne();
+let participant = ParticipantsCollection.findOneAsync();
 
-let conversationParticipants = ConversationsCollection.findOne().participants();
+let conversationParticipants = ConversationsCollection.findOneAsync().participants();
 ```
 
 #### Instance Methods ###
@@ -170,7 +170,7 @@ if(participant.isObserving()){
 A message is a bit of text linked to a conversation and a user and timestamped. Creating a new message is accomplished by calling the `sendMessage` method of a conversation and providing a string as it's only parameter.
 
 ```javascript
-let conversation = ConversationsCollection.findOne();
+let conversation = ConversationsCollection.findOneAsync();
 
 conversation.sendMessage("Hello World!");
 ```
@@ -182,9 +182,9 @@ To gain access to the methods of a message you must first have an instance of th
 ```javascript
 import { MessagesCollection, ConversationsCollectoin } from 'meteor/socialize:messaging';
 
-let message = MessagesCollection.findOne();
+let message = MessagesCollection.findOneAsync();
 
-let conversationMessages = ConversationsCollection.findOne().messages();
+let conversationMessages = ConversationsCollection.findOneAsync().messages();
 ```
 
 #### Instance Methods ####

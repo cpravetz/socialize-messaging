@@ -163,7 +163,7 @@ Meteor.publish('socialize.viewingConversation', function viewingConversationPubl
             const sessionId = this._session.id;
 
 
-            ParticipantsCollection.update({
+            ParticipantsCollection.updateAsync({
                 conversationId, userId: this.userId,
             }, {
                 $addToSet: { observing: sessionId },
@@ -171,7 +171,7 @@ Meteor.publish('socialize.viewingConversation', function viewingConversationPubl
             });
 
             this.onStop(() => {
-                ParticipantsCollection.update({
+                ParticipantsCollection.updateAsync({
                     conversationId, userId: this.userId,
                 }, {
                     $pull: { observing: sessionId },
@@ -189,14 +189,14 @@ Meteor.publish('socialize.viewingConversation', function viewingConversationPubl
  * This publication when subscribed to sets the typing state of a participant in a conversation to true. When stopped it sets it to false.
  * @param   {String}   conversationId The _id of the participant
  */
-Meteor.publish('socialize.typing', function typingPublication(conversationId) {
+Meteor.publish('socialize.typing', async function typingPublication(conversationId) {
     check(conversationId, String);
 
     if (this.userId) {
         const user = User.createEmpty(this.userId);
 
         if (user.isParticipatingIn(conversationId)) {
-            const participant = ParticipantsCollection.findOne({ conversationId, userId: this.userId }, { fields: { _id: 1 } });
+            const participant = await ParticipantsCollection.findOneAsync({ conversationId, userId: this.userId }, { fields: { _id: 1 } });
 
             const sessionId = this._session.id;
 
@@ -211,16 +211,16 @@ Meteor.publish('socialize.typing', function typingPublication(conversationId) {
             const collectionName = participant.getCollectionName();
 
             if (SyntheticMutator) {
-                SyntheticMutator.update(`conversations::${conversationId}::${collectionName}`, participant._id, typingModifier);
+                SyntheticMutator.updateAsync(`conversations::${conversationId}::${collectionName}`, participant._id, typingModifier);
 
                 this.onStop(() => {
-                    SyntheticMutator.update(`conversations::${conversationId}::${collectionName}`, participant._id, notTypingModifier);
+                    SyntheticMutator.updateAsync(`conversations::${conversationId}::${collectionName}`, participant._id, notTypingModifier);
                 });
             } else {
-                participant.update(typingModifier);
+                participant.updateAsync(typingModifier);
 
                 this.onStop(() => {
-                    participant.update(notTypingModifier);
+                    participant.updateAsync(notTypingModifier);
                 });
             }
         }
